@@ -1,0 +1,16 @@
+{
+  "language": "csharp",
+  "languageVersion": "8.0",
+  "testFramework": "nunit",
+  "preset": "webapi",
+  "allow": ["src/**/*.cs", "tests/**/*.cs"],
+  "ignore": [
+    "tests/Program.cs",
+    "tests/*.csproj",
+    "tests/bin/*",
+    "tests/obj/*",
+    "src/*.csproj",
+    "src/bin/*",
+    "src/obj/*"
+  ]
+}
