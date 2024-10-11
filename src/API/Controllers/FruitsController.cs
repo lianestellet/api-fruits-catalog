@@ -1,8 +1,8 @@
-﻿using FruitApplication.Entities;
+﻿using Core.DTOs;
+using Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using FruitApplication.BusinessLogic;
 
-namespace FruitApplication.API.Controllers
+namespace API.Controllers
 {
 
     [ApiController]
@@ -17,9 +17,15 @@ namespace FruitApplication.API.Controllers
 
         // GET: api/Fruits
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<FruitDTO>>> FindAll()
+        public async Task<ActionResult<IEnumerable<FruitDTO>>> FindAllFruits()
         {
             return Ok(await _fruitService.FindAllFruits());
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<IEnumerable<FruitDTO>>> FindFruitById(long id)
+        {
+            return Ok(await _fruitService.FindFruitById(id));
         }
     }
 }

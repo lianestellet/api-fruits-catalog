@@ -2,7 +2,7 @@
 
 namespace Core.Interfaces
 {
-    public interface IFruitRepository
+    public interface IFruitContext
     {
         Task<IEnumerable<FruitDTO>> FindAllFruits();
         Task<FruitDTO> FindById(long id);

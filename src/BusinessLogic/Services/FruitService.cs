@@ -1,10 +1,5 @@
-﻿using DataAccess.Models;
-using DataAccess.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Core.DTOs;
+using Core.Interfaces;
 
 namespace BusinessLogic.Services
 {
@@ -14,14 +9,14 @@ namespace BusinessLogic.Services
 
         public FruitService(IFruitRepository fruitRepository) => _fruitRepository = fruitRepository;
 
-        public IEnumerable<Fruit> FindAllFruits() => _fruitRepository.FindAllFruits();
+        public async Task<IEnumerable<FruitDTO>> FindAllFruits() => throw new NotImplementedException();
+ 
+        public Task<FruitDTO> FindFruitById(long id) => throw new NotImplementedException();        
 
-        public Fruit FindFruitById(long id) => _fruitRepository.FindFruitById(id);
+        public Task SaveFruit(FruitDTO fruit) => throw new NotImplementedException();
 
-        public void SaveFruit(Fruit fruit) => throw new NotImplementedException();
+        public Task UpdateFruit(FruitDTO fruit) => throw new NotImplementedException();
 
-        public void UpdateFruit(long id, Fruit updatedFruit) => throw new NotImplementedException();
-
-        public void DeleteFruit(long id) => _fruitRepository.DeleteFruit(id);
+        public async Task DeleteFruit(long id) => throw new NotImplementedException();
     }
 }

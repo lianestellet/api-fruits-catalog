@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FruitCatalog.API;
+using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Tests
 {
-    public class WebApiFactory : WebApplicationFactory<FruitApplication.Startup>
+    public class WebApiFactory : WebApplicationFactory<Startup>
     {
     }
 }
