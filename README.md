@@ -2,7 +2,7 @@
 A Dotnet Core 2.2 simple API created using TDD and Onion Architecture principles
 This CRUD API manages fruits and fruit types using Swagger API
 
-For more detailed information about the request flow of this architecture, check out our [Onion Architecture Documentation](./docs/Onion.md).
+For more detailed information about the request flow of this architecture, check out our [Onion Architecture Documentation](./docs/OnionArchitecture.md.md).
 
 
 ## Description
