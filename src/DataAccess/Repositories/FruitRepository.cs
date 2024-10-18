@@ -1,26 +1,35 @@
-﻿using Core.DTOs;
-using Core.Interfaces;
+﻿using DataAccess.Context;
+using Entities.DTOs;
+using Entities.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories
 {
     public class FruitRepository : IFruitRepository
     {
-        private readonly IFruitContext _context;
-        public FruitRepository(IFruitContext context)
+        private readonly FruitDbContext _context;
+        public FruitRepository(FruitDbContext context)
         {
             _context = context;
         }
 
         public async Task<IEnumerable<FruitDTO>> FindAllFruits()
         {
-            return await _context.FindAllFruits();
+            return await _context.Fruits
+                .Include(f => f.FruitType)
+                .Select(f => new FruitDTO
+                {
+                    Id = f.Id,
+                    Name = f.Name,
+                    Description = f.Description,
+                    FruitType = new FruitTypeDTO
+                    {
+                        Id = f.FruitType.Id,
+                        Name = f.FruitType.Name,
+                        Description = f.FruitType.Description
+                    }
+                }).ToListAsync();
         }
-
-        public async Task DeleteFruit(long id)
-        {
-            await _context.FindById(id);
-        }
-
 
         public Task<FruitDTO> FindById(long id)
         {
@@ -36,5 +45,10 @@ namespace DataAccess.Repositories
         {
             throw new NotImplementedException();
         }
+        public async Task DeleteFruit(long id)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

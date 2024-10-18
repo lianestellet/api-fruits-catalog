@@ -1,8 +1,8 @@
-﻿namespace Core.DTOs
+﻿namespace Entities.DTOs
 {
     public class FruitTypeDTO
     {
-        public required long Id { get; set; }
+        public long? Id { get; set; }
         public required string Name { get; set; }
         public required string Description { get; set; }
     }

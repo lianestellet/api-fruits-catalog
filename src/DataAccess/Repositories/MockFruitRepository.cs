@@ -1,19 +1,21 @@
-﻿using Core.Entities;
-using Core.Interfaces;
+﻿using DataAccess.Context;
+using Entities.Domain;
 
 namespace DataAccess.Repositories
 {
-    internal class MockFruitRepository : FruitRepository
+    public class MockFruitRepository : FruitRepository
     {
-        private readonly List<Fruit> _fruits = new List<Fruit> {
-            new (1, "Banana", "Peel before eating"),
-            new (2, "Apple", "Peel before eating"),
-            new (3, "Papaya", "Remove the peel before eating"),
-            new (4, "Melon", "Remove the peel before eating")
-        };
+        private readonly List<Fruit> _fruits;
 
-        public MockFruitRepository(IFruitContext context) : base(context)
+        public MockFruitRepository(FruitDbContext context) : base(context)
         {
+            _fruits = new List<Fruit> {
+
+            new Fruit(1, "Banana", "Peel before eating"),
+            new Fruit(2, "Apple", "Peel before eating"),
+            new Fruit(3, "Papaya", "Remove the peel before eating"),
+            new Fruit(4, "Melon", "Remove the peel before eating")  }
+            ;
         }
 
         public IEnumerable<Fruit> FindAllFruits() => _fruits.ToList();

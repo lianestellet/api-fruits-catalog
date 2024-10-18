@@ -1,6 +1,7 @@
 using API.Controllers;
 using BusinessLogic.Services;
-using Core.DTOs;
+using Entities.DTOs;
+using Entities.Interfaces;
 using Moq;
 using System.Net;
 using System.Net.Http.Headers;
@@ -13,7 +14,7 @@ namespace FruitApplication.Tests
     public class FruitsControllerTests
     {
         private readonly FruitsController _controller;
-        private readonly Mock<IFruitService> _serviceMock;
+        private readonly Mock<IFruitService> _mockService;
 
         private WebApiFactory _factory;
         private HttpClient _client;
