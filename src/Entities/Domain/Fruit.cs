@@ -1,17 +1,27 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Core.Entities
+namespace Entities.Domain
 {
     public class Fruit
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set;  }
+
+        [ForeignKey("FruitType")]
+        [Required]
+        
         public long FruitTypeId { get; set; }
+        [Required]
+
         public string Name { get; set; }
+        [Required]
+        
         public string Description { get; set; }
-        public FruitType? FruitType { get; set; }
+
+        [NotMapped]
+        public FruitType FruitType { get; set; }
 
         public Fruit() { }
 

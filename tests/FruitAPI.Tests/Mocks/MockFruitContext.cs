@@ -1,4 +1,4 @@
-﻿using Core.Entities;
+﻿using Entities.Domain;
 using DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
 

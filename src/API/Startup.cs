@@ -1,5 +1,8 @@
+using Entities.Interfaces;
 using DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
+using BusinessLogic.Services;
+using DataAccess.Repositories;
 
 namespace FruitCatalog.API
 {
@@ -17,12 +20,24 @@ namespace FruitCatalog.API
         {
             services.AddControllers();
 
-            string DBUUID = Guid.NewGuid().ToString();
-            services.AddDbContext<FruitContext>(opt =>
-                opt.UseInMemoryDatabase("FruitList" + DBUUID));
+            var databaseProvider = Configuration["DatabaseProvider"];
+
+            if (databaseProvider == "pgsql")
+            {
+                services.AddDbContext<FruitDbContext>(opt =>
+                opt.UseNpgsql(Configuration.GetConnectionString("PostgresConnection")));
+            }
+            else if (databaseProvider == "InMemory")
+            {
+                services.AddDbContext<FruitDbContext>(opt =>
+                    opt.UseInMemoryDatabase("FruitCatalogInMemoryDb"));
+            }           
 
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
+
+            services.AddScoped<IFruitService, FruitService>();
+            services.AddScoped<IFruitRepository, FruitRepository>();            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -1,6 +1,6 @@
-﻿using Core.DTOs;
+﻿using Entities.DTOs;
 
-namespace Core.Interfaces
+namespace Entities.Interfaces
 {
     public interface IFruitRepository
     {
