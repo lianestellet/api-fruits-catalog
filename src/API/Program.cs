@@ -1,5 +1,5 @@
 ﻿
-using FruitCatalog.API;
+using API;
 using Microsoft.AspNetCore;
 
 CreateWebHostBuilder(args).Build().Run();

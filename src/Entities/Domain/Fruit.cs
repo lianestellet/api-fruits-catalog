@@ -3,33 +3,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Entities.Domain
 {
-    public class Fruit
+    public class Fruit(string name)
     {
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set;  }
+        public long Id { get; set; }
 
         [ForeignKey("FruitType")]
         [Required]
-        
-        public long FruitTypeId { get; set; }
+        public required long FruitTypeId { get; set; }
+
         [Required]
+        public string Name { get; set; } = name;
 
-        public string Name { get; set; }
         [Required]
-        
-        public string Description { get; set; }
+        public required string Description { get; set; }
 
-        [NotMapped]
-        public FruitType FruitType { get; set; }
-
-        public Fruit() { }
-
-        public Fruit(long fruitTypeId, string name, string description)
-        {            
-            FruitTypeId = fruitTypeId;
-            Name = name;
-            Description = description;
-        }
+        public FruitType? FruitType { get; set; }
     }
 }

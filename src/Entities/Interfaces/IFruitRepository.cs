@@ -1,13 +1,13 @@
-﻿using Entities.DTOs;
+﻿using Entities.Domain;
 
 namespace Entities.Interfaces
 {
     public interface IFruitRepository
     {
-        Task<IEnumerable<FruitDTO>> FindAllFruits();
-        Task<FruitDTO> FindById(long id);
-        Task<FruitDTO> Save(FruitDTO fruitDTO);
-        Task<FruitDTO> Update(FruitDTO fruitDTO);
-        Task DeleteFruit(long id);
+        Task<IEnumerable<Fruit>> FindAllFruitsAsync();
+        Task<Fruit?> FindFruitByIdAsync(long fruitId);
+        Task<Fruit> SaveFruitAsync(Fruit fruit);
+        Task<Fruit> UpdateFruitAsync(Fruit fruit);
+        Task DeleteFruitAsync(Fruit fruit);
     }
 }

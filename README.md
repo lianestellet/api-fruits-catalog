@@ -54,42 +54,40 @@ This project was created for studies purposes, testing tools, practice some prog
     ```
 
 3. **Set up the Database**:
-   
-   If you’re using a database like SQL Server for production, configure your connection string in `appsettings.json`:
-   
-    ```json
-    {
-      "ConnectionStrings": {
-        "DefaultConnection": "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword;"
-      }
-    }
-    ```
+   The project is set to use an in memory database but if you want to use a different database you should change **src/API/appsettings.json** 
+   `"DatabaseProvider": {
+    "Provider": "InMemory" // PostgreSql, MySql, SqlServer
+  },`
 
-4. **Run Database Migrations** (if applicable):
+  And put your connectionString using the following command:
+  `dotnet user-secrets set "ConnectionStrings:Postgres" "Host=localhost;Database=your_database;Username=your_username;Password=your_password;"`
+
+
+1. **Run Database Migrations** (if applicable):
 
     ```bash
     dotnet ef database update
     ```
 
-5. **Run the Application**:
+2. **Run the Application**:
 
     ```bash
     dotnet run --project API/YourProjectName.API.csproj
     ```
 
-6. **Run Unit Tests**:
+3. **Run Unit Tests**:
 
     ```bash
     dotnet test Tests/UnitTests/YourProjectName.UnitTests.csproj
     ```
 
-7. **Run Integration Tests**:
+4. **Run Integration Tests**:
 
     ```bash
     dotnet test Tests/IntegrationTests/YourProjectName.IntegrationTests.csproj
     ```
 
-8. **Swagger UI**:
+5. **Swagger UI**:
 
     Navigate to `http://localhost:5000` (or the port your application is running on) to see the Swagger UI. This will give you a user-friendly interface to interact with your API and see the documentation.
 
