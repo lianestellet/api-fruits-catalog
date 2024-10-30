@@ -1,53 +1,46 @@
 ﻿using DataAccess.Context;
-using Entities.DTOs;
+using Entities.Domain;
 using Entities.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories
 {
-    public class FruitRepository : IFruitRepository
+    public class FruitRepository(FruitDbContext context) : IFruitRepository
     {
-        private readonly FruitDbContext _context;
-        public FruitRepository(FruitDbContext context)
-        {
-            _context = context;
-        }
+        private readonly FruitDbContext _context = context;
 
-        public async Task<IEnumerable<FruitDTO>> FindAllFruits()
+        public async Task<IEnumerable<Fruit>> FindAllFruitsAsync()
         {
             return await _context.Fruits
                 .Include(f => f.FruitType)
-                .Select(f => new FruitDTO
-                {
-                    Id = f.Id,
-                    Name = f.Name,
-                    Description = f.Description,
-                    FruitType = new FruitTypeDTO
-                    {
-                        Id = f.FruitType.Id,
-                        Name = f.FruitType.Name,
-                        Description = f.FruitType.Description
-                    }
-                }).ToListAsync();
+                .ToListAsync();
         }
 
-        public Task<FruitDTO> FindById(long id)
+        public async Task<Fruit?> FindFruitByIdAsync(long fruitId)
         {
-            throw new NotImplementedException();
+            return await _context.Fruits
+                .Include(f => f.FruitType)
+                .FirstOrDefaultAsync(f => f.Id == fruitId);
         }
 
-        public Task<FruitDTO> Save(FruitDTO fruitDTO)
+        public async Task<Fruit> SaveFruitAsync(Fruit fruit)
         {
-            throw new NotImplementedException();
+            await _context.Fruits.AddAsync(fruit);
+            await _context.SaveChangesAsync();
+            return fruit;
         }
 
-        public Task<FruitDTO> Update(FruitDTO fruitDTO)
+        public async Task<Fruit> UpdateFruitAsync(Fruit fruit)
         {
-            throw new NotImplementedException();
+            _context.Fruits.Update(fruit);
+            await _context.SaveChangesAsync();
+            return fruit;
         }
-        public async Task DeleteFruit(long id)
+
+        public async Task DeleteFruitAsync(Fruit fruit)
         {
-            throw new NotImplementedException();
+            _context.Fruits.Remove(fruit);
+            await _context.SaveChangesAsync();
         }
 
     }

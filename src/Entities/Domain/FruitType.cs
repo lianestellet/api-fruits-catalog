@@ -3,13 +3,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Entities.Domain
 {
-    public class FruitType
+    public class FruitType(string name, string description = "")
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        public required string Name { get; set; }
-        public required string Description { get; set; }
+        [Required]
+        public string Name { get; set; } = name;
+
+        [Required]
+        public string Description { get; set; } = description;
     }
 }

@@ -1,13 +1,21 @@
-﻿namespace Entities.Exceptions
-{
-    public class NotFoundException : Exception
-    {
-        public int Status { get; }
-        public DateTime Date { get; }
+﻿using Entities.Constants;
 
-        public NotFoundException(string message) : base(message) {
-            Status = 404;
-            Date = DateTime.UtcNow;
+namespace Entities.Exceptions
+{
+    public class NotFoundException(string message) : Exception(message)
+    {
+        public int Status { get; } = AppConstants.StatusCodes.NOT_FOUND;
+        public string Msg { get; } = message;
+        public DateTime Date { get; } = DateTime.UtcNow;
+
+        public object ToFriendlyJson()
+        {
+            return new
+            {
+                status = Status,
+                msg = Msg,
+                date = Date.ToString("o")
+            };
         }
     }
 }
