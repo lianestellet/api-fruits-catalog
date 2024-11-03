@@ -1,8 +1,10 @@
-﻿using DataAccess.Tests.Data;
+﻿using DataAccess.UnitTests.Context;
 using Entities.Domain;
-using Entities.DTOs;
+using TestUtils.Data;
+using TestUtils.Extensions;
+using TestUtils.Fixtures;
 
-namespace DataAccess.Tests.Repositories
+namespace DataAccess.UnitTests.Repositories
 {
     [TestFixture]
     public class FruitRepositoryTests
@@ -24,21 +26,20 @@ namespace DataAccess.Tests.Repositories
         public async Task FindAllFruits_ReturnsAllFruits_WhenFruitsExists()
         {
             // Arrange 
-            var seedData = new DbSeedData();
+            var seedData = new SeedData().SeedBerriesFruits();
             var expectedFruits = seedData.SetFruits();
             var expectedFruitTypes = seedData.SetFruitTypes();
 
             // Act
             var dbContext = await InMemoryDbContext.SeedDatabaseAsync(seedData);
             var _repository = dbContext.CreateRepository();
-            var fruits = (await _repository.FindAllFruitsAsync()).ToList();
+            var allFruits = (await _repository.FindAllFruitsAsync()).ToList();
 
-            Assert.That(fruits, Is.Not.Empty);
+            Assert.That(allFruits, Is.Not.Empty);
 
-            for (int i = 0; i < expectedFruits.Count; i++)
+            foreach (var actualFruit in allFruits)
             {
-                var expectedFruit = expectedFruits[i];
-                var actualFruit = fruits[i];
+                var expectedFruit = expectedFruits.First(f => f.Id == actualFruit.Id);
                 var expectedFruitType = expectedFruitTypes.First(ft => ft.Id == expectedFruit.FruitTypeId);
 
                 Assert.Multiple(() =>
@@ -72,27 +73,27 @@ namespace DataAccess.Tests.Repositories
         public async Task FindFruitById_ReturnsFruit()
         {
             // Arrange
-            FruitType fruitType = new("Citrus") { Description = "Sour and juicy fruits" };
-            Fruit fruit = new("Peach")
-            {
-                Description = "Soft and fuzzy",
-                FruitType = fruitType,
-                FruitTypeId = fruitType.Id
-            };
+            FruitType expectedFruitType = StoneFixture.Type;
+            Fruit expectedFruit = StoneFixture.Peach;
 
-            // Act
-            var seedData = new CustomDbSeedData([fruitType], [fruit]);
+            var seedData = new SeedData()
+                .SeedFruitType(expectedFruitType)
+                .SeedFruit(expectedFruit);
+            
             var dbContext = await InMemoryDbContext.SeedDatabaseAsync(seedData);
             var _repository = dbContext.CreateRepository();
-            var actualFruit = await _repository.FindFruitByIdAsync(fruit.Id);
+
+            // Act
+
+            var actualFruit = await _repository.FindFruitByIdAsync(expectedFruit.Id);
 
             // Assert
             Assert.That(actualFruit, Is.Not.Null);
             Assert.Multiple(() =>
             {
-                Assert.That(actualFruit.Name, Is.EqualTo("Peach"));
-                Assert.That(actualFruit.Description, Is.EqualTo("Soft and fuzzy"));
-                Assert.That(actualFruit.FruitType!.Name, Is.EqualTo("Citrus"));
+                Assert.That(actualFruit.Name, Is.EqualTo(expectedFruit.Name));                
+                Assert.That(actualFruit.Description, Is.EqualTo(expectedFruit.Description));
+                Assert.That(actualFruit.FruitType!.Name, Is.EqualTo(expectedFruitType.Name));
             });
         }
 
@@ -107,10 +108,11 @@ namespace DataAccess.Tests.Repositories
                 FruitTypeId = fruitType.Id
             };
 
-            // Act
-            var seedData = new CustomDbSeedData([fruitType]);
+            var seedData = new SeedData().SeedFruitType(fruitType);
             var _context = await InMemoryDbContext.SeedDatabaseAsync(seedData);
             var _repository = _context.CreateRepository();
+
+            // Act
             var savedFruit = await _repository.SaveFruitAsync(fruit);
 
             //Assert
@@ -125,41 +127,37 @@ namespace DataAccess.Tests.Repositories
         [Test]
         public async Task UpdateFruitAsync_AddFruit()
         {
-            // Arrange 
-            FruitType tropicalFruitType = new("Tropical") { 
-                Id = 1,
-                Description = "Known for their exotic flavors and vibrant colors" 
-            };
-            FruitType citricFruitType = new("Citric") { 
-                Id = 2,
-                Description = "Fruits rich in vitamin C with tangy flavors and bright colors"
-            };
-            Fruit fruit = new("Pineapple")
-            {
-                Description = "Tropical and tangy",
-                FruitTypeId = tropicalFruitType.Id
-            };
+            // Arrange
+            FruitType expectedFruitType = TropicalFruitFixture.Type;
+            Fruit expectedFruit = TropicalFruitFixture.Mango;
 
-            var seedData = new CustomDbSeedData([tropicalFruitType, citricFruitType]);
+            FruitType fruitType = CitrusFixture.Type;
+            Fruit fruit = CitrusFixture.Lemon;
+            fruit.Id = 1;
+
+            var seedData = new SeedData()
+                .SeedFruit(fruit)
+                .SeedFruitTypes([fruitType, expectedFruitType]);
+
             var _context = await InMemoryDbContext.SeedDatabaseAsync(seedData);
             var _repository = _context.CreateRepository();
 
-            // Act
-            fruit.Name = "Lime";
-            fruit.Description = "Could be used in many ways on the foods and drinks";
-            fruit.FruitTypeId = citricFruitType.Id;
-
-            var updatedFruit = await _repository.UpdateFruitAsync(fruit);
+            // Act            
+            fruit.UpdateDetails(expectedFruit);
+            await _repository.UpdateFruitAsync(fruit);
+            var updatedFruit = await _repository.FindFruitByIdAsync(fruit.Id);
 
             //Assert
+            Assert.That(updatedFruit, Is.Not.Null);
             Assert.That(updatedFruit.FruitType, Is.Not.Null);
+
             Assert.Multiple(() =>
             {
-                Assert.That(updatedFruit.Name, Is.EqualTo("Lime"));
-                Assert.That(updatedFruit.Description, Is.EqualTo("Could be used in many ways on the foods and drinks"));
-                Assert.That(updatedFruit.FruitTypeId, Is.EqualTo(citricFruitType.Id));
-                Assert.That(updatedFruit.FruitType.Name, Is.EqualTo(citricFruitType.Name));
-                Assert.That(updatedFruit.FruitType.Description, Is.EqualTo(citricFruitType.Description));
+                Assert.That(updatedFruit.Name, Is.EqualTo(expectedFruit.Name));
+                Assert.That(updatedFruit.Description, Is.EqualTo(expectedFruit.Description));
+                Assert.That(updatedFruit.FruitTypeId, Is.EqualTo(expectedFruitType.Id));
+                Assert.That(updatedFruit.FruitType.Name, Is.EqualTo(expectedFruitType.Name));
+                Assert.That(updatedFruit.FruitType.Description, Is.EqualTo(expectedFruitType.Description));
             });
         }
 
@@ -173,19 +171,24 @@ namespace DataAccess.Tests.Repositories
                 Description = "Known for their exotic flavors and vibrant colors"
             };
 
-            Fruit fruit = new Fruit("Pineapple")
+            Fruit fruit = new ("Pineapple")
             {
                 Description = "Tropical and tangy",                
                 FruitTypeId = fruitType.Id
             };
 
-            var seedData = new CustomDbSeedData([fruitType], [fruit]);
+            var seedData = new SeedData()
+                .SeedFruitType(fruitType)
+                .SeedFruit(fruit);
+
             var _context = await InMemoryDbContext.SeedDatabaseAsync(seedData);
             var _repository = _context.CreateRepository();
 
             // Act            
             var fruitToDelete = await _repository.FindFruitByIdAsync(fruit.Id);
+
             Assert.That(fruitToDelete, Is.Not.Null);
+
             await _repository.DeleteFruitAsync(fruitToDelete);
             var fruitInDb = await _repository.FindFruitByIdAsync(fruit.Id);
 
