@@ -2,8 +2,9 @@
 using DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TestUtils.Data;
 
-namespace DataAccess.Tests.Data
+namespace DataAccess.UnitTests.Context
 {
     public class InMemoryDbContext
     {
@@ -26,14 +27,14 @@ namespace DataAccess.Tests.Data
             return new InMemoryDbContext();
         }
 
-        public static async Task<InMemoryDbContext> SeedDatabaseAsync(IDbSeedData seedData)
+        public static async Task<InMemoryDbContext> SeedDatabaseAsync(ISeedData seedData)
         {
             var db = new InMemoryDbContext();
             await db.SeedDataAsync(seedData);
             return db;
         }
 
-        public async Task<InMemoryDbContext> SeedDataAsync(IDbSeedData seedData)
+        public async Task<InMemoryDbContext> SeedDataAsync(ISeedData seedData)
         {
             var fruitTypes = seedData.SetFruitTypes();
             var fruits = seedData.SetFruits();

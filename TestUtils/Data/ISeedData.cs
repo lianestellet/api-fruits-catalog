@@ -1,9 +1,8 @@
 ﻿using Entities.Domain;
 
-namespace DataAccess.Tests.Data
+namespace TestUtils.Data
 {
-
-    public interface IDbSeedData
+    public interface ISeedData
     {
         public List<FruitType> SetFruitTypes();
         public List<Fruit> SetFruits();
