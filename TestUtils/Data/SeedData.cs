@@ -45,7 +45,7 @@ namespace TestUtils.Data
                     CitrusFixture.Type, 
                     PomeFixture.Type, 
                     StoneFixture.Type, 
-                    TropicalFruitFixture.Type
+                    TropicalFixture.Type
                 ];
             FruitTypes.AddRange(allTypes);
             return this;

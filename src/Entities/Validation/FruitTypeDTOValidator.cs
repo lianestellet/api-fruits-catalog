@@ -1,5 +1,6 @@
 ﻿using Entities.DTOs;
 using FluentValidation;
+using FluentValidation.Validators;
 
 namespace Entities.Validation
 {
@@ -7,8 +8,8 @@ namespace Entities.Validation
     {
         public FruitTypeDTOValidator()
         {
-            RuleFor(ft => ft.Name).NotEmpty().WithMessage("Fruit type name is required.");
-            RuleFor(ft => ft.Description).NotEmpty().WithMessage("Fruit type description is required.");
+            RuleFor(ft => ft.Name).NotEmpty().WithMessage(ValidationMessages.FruitTypeNameRequired);
+            RuleFor(ft => ft.Description).NotEmpty().WithMessage(ValidationMessages.FruitTypeDescriptionRequired);
         }
     }
 }

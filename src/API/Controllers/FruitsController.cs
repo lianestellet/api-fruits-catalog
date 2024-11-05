@@ -25,7 +25,7 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<IEnumerable<FruitDTO>>> FindFruitById(long id)
         {
-            return Ok(await _fruitService.FindFruitById(id));
+            return Ok(await _fruitService.FindFruitByIdAsync(id));
         }
 
         [HttpPost]
@@ -36,7 +36,7 @@ namespace API.Controllers
                 return BadRequest();
             }
 
-            await _fruitService.SaveFruit(fruitDTO);
+            await _fruitService.SaveFruitAsync(fruitDTO);
             return CreatedAtAction(nameof(FindFruitById), new { id = fruitDTO.Id }, fruitDTO);
         }
 
@@ -48,7 +48,7 @@ namespace API.Controllers
                 return BadRequest();
             }
 
-            var updatedFruit = await _fruitService.UpdateFruit(fruitDTO);
+            var updatedFruit = await _fruitService.UpdateFruitAsync(fruitDTO);
             if (updatedFruit == null)
             {
                 return NotFound();
@@ -60,7 +60,7 @@ namespace API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFruit(long id)
         {
-            var existingFruit = await _fruitService.FindFruitById(id);
+            var existingFruit = await _fruitService.FindFruitByIdAsync(id);
             if (existingFruit == null)
             {
                 return NotFound();

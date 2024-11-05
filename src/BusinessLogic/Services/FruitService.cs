@@ -1,24 +1,73 @@
-﻿using Entities.DTOs;
+﻿using Entities.Domain;
+using Entities.DTOs;
+using Entities.Exceptions;
+using Entities.Extensions;
 using Entities.Interfaces;
+using FluentValidation;
+using TestUtils.Extensions;
 
 namespace BusinessLogic.Services
 {
-    public class FruitService(IFruitRepository fruitRepository) : IFruitService
+    public class FruitService(IFruitRepository fruitRepository, IValidator<FruitDTO> validator, IValidator<CreateFruitDTO> createValidator) : IFruitService
     {
         private readonly IFruitRepository _fruitRepository = fruitRepository;
+        private readonly IValidator<FruitDTO> _validator = validator;
+        private readonly IValidator<CreateFruitDTO> _createValidator = createValidator;
 
         public async Task<IEnumerable<FruitDTO>> FindAllFruits()
         {
             var fruits = await _fruitRepository.FindAllFruitsAsync();
-            return fruits.Select(fruit => new FruitDTO(fruit));
+            return fruits.Select(fruit => new FruitDTO(fruit)).ToList();
         }
 
-        public Task<FruitDTO> FindFruitById(long id) => throw new NotImplementedException();        
+        public async Task<FruitDTO> FindFruitByIdAsync(long id)
+        {
+            var fruit = await _fruitRepository.FindFruitByIdAsync(id);
 
-        public Task<FruitDTO> SaveFruit(FruitDTO fruit) => throw new NotImplementedException();
+            return fruit == null 
+                ? throw new NotFoundException(ExceptionMessages.FruitNotFoundById(id)) 
+                : new FruitDTO(fruit);
+        }
 
-        public Task<FruitDTO> UpdateFruit(FruitDTO fruit) => throw new NotImplementedException();
+        public async Task<FruitDTO> SaveFruitAsync(CreateFruitDTO fruit)
+        {
+            var validationResult = _createValidator.Validate(fruit);
+            if(!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
 
-        public async Task DeleteFruit(long id) => throw new NotImplementedException();
+            await FindFruitTypeById(fruit.FruitTypeId);
+
+            var savedFruit = await _fruitRepository.SaveFruitAsync(fruit.ToFruit());
+            return savedFruit.ToFruitDTO();
+        }
+
+        public async Task<FruitDTO> UpdateFruitAsync(FruitDTO fruitDto) 
+        {
+            var validationResult = _validator.Validate(fruitDto);
+            if (!validationResult.IsValid)
+            {
+                throw new ValidationException(validationResult.Errors);
+            }
+
+            await FindFruitByIdAsync(fruitDto.Id);
+            await FindFruitTypeById(fruitDto.FruitTypeId);
+
+            var result = await _fruitRepository.UpdateFruitAsync(fruitDto.ToFruit());
+            return result.ToFruitDTO();
+        }
+
+        public async Task DeleteFruit(long id)
+        {
+            var fruit = await FindFruitByIdAsync(id);
+            await _fruitRepository.DeleteFruitAsync(fruit.ToFruit());
+        }
+
+        private async Task<FruitType?> FindFruitTypeById(long fruitId)
+        {
+            var fruitType = await _fruitRepository.FruitTypeByIdAsync(fruitId);
+            return fruitType ?? throw new NotFoundException(ExceptionMessages.FruitTypeNotFoundById(fruitId));
+        }
     }
 }

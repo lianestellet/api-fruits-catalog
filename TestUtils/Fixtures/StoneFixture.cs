@@ -5,7 +5,7 @@ namespace TestUtils.Fixtures
     public static class StoneFixture
     {
         public static readonly FruitType Type = 
-            new("Stone Fruit")
+            new("Stone FruitMessages")
             { 
                 Id = 4, 
                 Description = "Fruits with a large, hard pit" 

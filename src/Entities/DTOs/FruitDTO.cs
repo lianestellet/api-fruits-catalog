@@ -2,12 +2,9 @@
 
 namespace Entities.DTOs
 {
-    public class FruitDTO
+    public class FruitDTO : BaseFruitDTO
     {
         public long Id { get; set; }
-        public string? Name { get; set; }
-        public string? Description { get; set; }
-        public long? FruitTypeId { get; set; }
         public FruitTypeDTO? FruitType { get; set; }
 
         public FruitDTO (Fruit fruit)

@@ -1,25 +1,48 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Principal;
 
 namespace Entities.Domain
 {
-    public class Fruit(string name)
+    public class Fruit
     {
-
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
-        [ForeignKey("FruitType")]
+        [ForeignKey("FruitTypeMessages")]
         [Required]
-        public required long FruitTypeId { get; set; }
+        public long FruitTypeId { get; set; }
 
         [Required]
-        public string Name { get; set; } = name;
+        public string Name { get; set; } = string.Empty;
 
         [Required]
-        public required string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         public FruitType? FruitType { get; set; }
+
+        public Fruit()
+        {
+            
+        }
+
+        public Fruit(string name)
+        {
+            Name = name;
+        }
+
+        public Fruit(string name, string description)
+        {
+            Name = name;
+            Description = description;
+        }
+
+        public Fruit(string name, string description, long fruitTypeId)
+        {
+            Name = name;
+            Description = description;
+            FruitTypeId = fruitTypeId;
+        }
     }
 }

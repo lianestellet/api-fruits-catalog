@@ -1,10 +1,10 @@
-﻿using Entities.Constants;
+﻿using System.Net; 
 
 namespace Entities.Exceptions
 {
     public class NotFoundException(string message) : Exception(message)
     {
-        public int Status { get; } = AppConstants.StatusCodes.NOT_FOUND;
+        public int Status { get; } = (int)HttpStatusCode.NotFound;
         public string Msg { get; } = message;
         public DateTime Date { get; } = DateTime.UtcNow;
 
