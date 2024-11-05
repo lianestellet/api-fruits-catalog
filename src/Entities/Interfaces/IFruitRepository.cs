@@ -9,5 +9,6 @@ namespace Entities.Interfaces
         Task<Fruit> SaveFruitAsync(Fruit fruit);
         Task<Fruit> UpdateFruitAsync(Fruit fruit);
         Task DeleteFruitAsync(Fruit fruit);
+        Task<FruitType?> FruitTypeByIdAsync(long fruitTypeId);
     }
 }

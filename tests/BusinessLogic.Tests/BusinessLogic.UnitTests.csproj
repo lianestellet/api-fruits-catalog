@@ -19,9 +19,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\BusinessLogic\BusinessLogic.csproj" />
-    <ProjectReference Include="..\src\DataAccess\DataAccess.csproj" />
-    <ProjectReference Include="..\src\Entities\Entities.csproj" />
+    <ProjectReference Include="..\..\src\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\..\src\DataAccess\DataAccess.csproj" />
+    <ProjectReference Include="..\..\src\Entities\Entities.csproj" />
+    <ProjectReference Include="..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
   <ItemGroup>

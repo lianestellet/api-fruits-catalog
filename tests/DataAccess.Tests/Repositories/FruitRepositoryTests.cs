@@ -48,7 +48,7 @@ namespace DataAccess.UnitTests.Repositories
                     Assert.That(actualFruit.Description, Is.EqualTo(expectedFruit.Description));
                     Assert.That(actualFruit.FruitType!.Id, Is.EqualTo(expectedFruit.FruitTypeId));
 
-                    // Verify the relationship with FruitType
+                    // Verify the relationship with FruitTypeMessages
                     Assert.That(actualFruit.FruitType, Is.Not.Null);
                     Assert.That(actualFruit.FruitType.Name, Is.EqualTo(expectedFruitType.Name));
                     Assert.That(actualFruit.FruitType.Description, Is.EqualTo(expectedFruitType.Description));
@@ -101,12 +101,8 @@ namespace DataAccess.UnitTests.Repositories
         public async Task SaveFruitAsync_AddFruit()
         {
             // Arrange 
-            FruitType fruitType = new("Tropical") { Description = "Known for their exotic flavors and vibrant colors" };
-            Fruit fruit = new("Pineapple")
-            {
-                Description = "Tropical and tangy",
-                FruitTypeId = fruitType.Id
-            };
+            FruitType fruitType = new("Tropical", "Known for their exotic flavors and vibrant colors");
+            Fruit fruit = new("Pineapple", "Tropical and tangy") { FruitTypeId = fruitType.Id };
 
             var seedData = new SeedData().SeedFruitType(fruitType);
             var _context = await InMemoryDbContext.SeedDatabaseAsync(seedData);
@@ -128,8 +124,8 @@ namespace DataAccess.UnitTests.Repositories
         public async Task UpdateFruitAsync_AddFruit()
         {
             // Arrange
-            FruitType expectedFruitType = TropicalFruitFixture.Type;
-            Fruit expectedFruit = TropicalFruitFixture.Mango;
+            FruitType expectedFruitType = TropicalFixture.Type;
+            Fruit expectedFruit = TropicalFixture.Mango;
 
             FruitType fruitType = CitrusFixture.Type;
             Fruit fruit = CitrusFixture.Lemon;
@@ -165,15 +161,15 @@ namespace DataAccess.UnitTests.Repositories
         public async Task DeleteFruitAsync_RemoveFruit()
         {
             // Arrange
-            FruitType fruitType = new ("Tropical")
-            {
-                Id = 1,
-                Description = "Known for their exotic flavors and vibrant colors"
+            FruitType fruitType = new ("Tropical") 
+            { 
+                Id = 1, 
+                Description = "Known for their exotic flavors and vibrant colors" 
             };
 
             Fruit fruit = new ("Pineapple")
             {
-                Description = "Tropical and tangy",                
+                Description = "Tropical and tangy",
                 FruitTypeId = fruitType.Id
             };
 

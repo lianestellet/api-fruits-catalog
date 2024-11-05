@@ -43,5 +43,9 @@ namespace DataAccess.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<FruitType?> FruitTypeByIdAsync(long fruitTypeId)
+        {
+            return await _context.FruitTypes.FirstOrDefaultAsync(ft => ft.Id == fruitTypeId);
+        }
     }
 }

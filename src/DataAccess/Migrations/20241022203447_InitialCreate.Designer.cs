@@ -24,7 +24,7 @@ namespace DataAccess.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Entities.Domain.Fruit", b =>
+            modelBuilder.Entity("Entities.Domain.FruitValidationMessages", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -71,7 +71,7 @@ namespace DataAccess.Migrations
                     b.ToTable("FruitTypes");
                 });
 
-            modelBuilder.Entity("Entities.Domain.Fruit", b =>
+            modelBuilder.Entity("Entities.Domain.FruitValidationMessages", b =>
                 {
                     b.HasOne("Entities.Domain.FruitTypeDTO", "FruitTypeDTO")
                         .WithMany()
