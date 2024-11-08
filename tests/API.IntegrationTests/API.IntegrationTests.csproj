@@ -22,12 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\API\API.csproj" />
-    <ProjectReference Include="..\..\src\DataAccess\DataAccess.csproj" />
-    <ProjectReference Include="..\..\src\Entities\Entities.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 
