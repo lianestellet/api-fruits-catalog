@@ -1,8 +1,8 @@
-﻿using DataAccess.UnitTests.Context;
-using Entities.Domain;
-using TestUtils.Data;
-using TestUtils.Extensions;
-using TestUtils.Fixtures;
+﻿using Entities.Domain;
+using Entities.Extensions;
+using TestUtils.Core.Data;
+using TestUtils.Core.Fixtures;
+using TestUtils.DataAccess.Context;
 
 namespace DataAccess.UnitTests.Repositories
 {
@@ -10,10 +10,10 @@ namespace DataAccess.UnitTests.Repositories
     public class FruitRepositoryTests
     {
         [Test]
-        public async Task FindAllFruits_ReturnsEmptyList_WhenNoFruitsExist()
+        public async Task FindAllFruitsAsync_ShouldReturnEmptyList_WhenNoFruitsExist()
         {
             // Arrange
-            var _repository = InMemoryDbContext.Empty().CreateRepository();
+            var _repository = SetupInMemoryDb.Empty().CreateRepository();
 
             // Act
             var fruits = (await _repository.FindAllFruitsAsync()).ToList();
@@ -23,7 +23,7 @@ namespace DataAccess.UnitTests.Repositories
         }
 
         [Test]
-        public async Task FindAllFruits_ReturnsAllFruits_WhenFruitsExists()
+        public async Task FindAllFruits_ShouldReturnsAllFruits_WhenCalled()
         {
             // Arrange 
             var seedData = new SeedData().SeedBerriesFruits();
@@ -31,7 +31,7 @@ namespace DataAccess.UnitTests.Repositories
             var expectedFruitTypes = seedData.SetFruitTypes();
 
             // Act
-            var dbContext = await InMemoryDbContext.SeedDatabaseAsync(seedData);
+            var dbContext = await SetupInMemoryDb.SeededAsync(seedData);
             var _repository = dbContext.CreateRepository();
             var allFruits = (await _repository.FindAllFruitsAsync()).ToList();
 
@@ -57,10 +57,10 @@ namespace DataAccess.UnitTests.Repositories
         }
 
         [Test]
-        public async Task FindByIdAsync_ReturnsNull()
+        public async Task FindByIdAsync_ShouldReturnNull_WhenNotFound()
         {
             // Arrange
-            var _repository = InMemoryDbContext.Empty().CreateRepository();
+            var _repository = SetupInMemoryDb.Empty().CreateRepository();
 
             // Act 
             var fruit = await _repository.FindFruitByIdAsync(-1);
@@ -70,7 +70,7 @@ namespace DataAccess.UnitTests.Repositories
         }
 
         [Test]
-        public async Task FindFruitById_ReturnsFruit()
+        public async Task FindFruitByIdAsync_ShouldReturnFruit_WhenExists()
         {
             // Arrange
             FruitType expectedFruitType = StoneFixture.Type;
@@ -80,11 +80,10 @@ namespace DataAccess.UnitTests.Repositories
                 .SeedFruitType(expectedFruitType)
                 .SeedFruit(expectedFruit);
             
-            var dbContext = await InMemoryDbContext.SeedDatabaseAsync(seedData);
+            var dbContext = await SetupInMemoryDb.SeededAsync(seedData);
             var _repository = dbContext.CreateRepository();
 
             // Act
-
             var actualFruit = await _repository.FindFruitByIdAsync(expectedFruit.Id);
 
             // Assert
@@ -98,14 +97,14 @@ namespace DataAccess.UnitTests.Repositories
         }
 
         [Test]
-        public async Task SaveFruitAsync_AddFruit()
+        public async Task SaveFruitAsync_ShouldAddFruit_WhenValidData()
         {
             // Arrange 
             FruitType fruitType = new("Tropical", "Known for their exotic flavors and vibrant colors");
             Fruit fruit = new("Pineapple", "Tropical and tangy") { FruitTypeId = fruitType.Id };
 
             var seedData = new SeedData().SeedFruitType(fruitType);
-            var _context = await InMemoryDbContext.SeedDatabaseAsync(seedData);
+            var _context = await SetupInMemoryDb.SeededAsync(seedData);
             var _repository = _context.CreateRepository();
 
             // Act
@@ -121,7 +120,7 @@ namespace DataAccess.UnitTests.Repositories
         }
 
         [Test]
-        public async Task UpdateFruitAsync_AddFruit()
+        public async Task UpdateFruitAsync_ShouldAddFruit_WhenValid()
         {
             // Arrange
             FruitType expectedFruitType = TropicalFixture.Type;
@@ -135,11 +134,11 @@ namespace DataAccess.UnitTests.Repositories
                 .SeedFruit(fruit)
                 .SeedFruitTypes([fruitType, expectedFruitType]);
 
-            var _context = await InMemoryDbContext.SeedDatabaseAsync(seedData);
+            var _context = await SetupInMemoryDb.SeededAsync(seedData);
             var _repository = _context.CreateRepository();
 
             // Act            
-            fruit.UpdateDetails(expectedFruit);
+            fruit.ApplyAttributesFrom(expectedFruit);
             await _repository.UpdateFruitAsync(fruit);
             var updatedFruit = await _repository.FindFruitByIdAsync(fruit.Id);
 
@@ -158,7 +157,7 @@ namespace DataAccess.UnitTests.Repositories
         }
 
         [Test]
-        public async Task DeleteFruitAsync_RemoveFruit()
+        public async Task DeleteFruitAsync_ShouldRemoveFruit_WhenExists()
         {
             // Arrange
             FruitType fruitType = new ("Tropical") 
@@ -177,19 +176,15 @@ namespace DataAccess.UnitTests.Repositories
                 .SeedFruitType(fruitType)
                 .SeedFruit(fruit);
 
-            var _context = await InMemoryDbContext.SeedDatabaseAsync(seedData);
+            var _context = await SetupInMemoryDb.SeededAsync(seedData);
             var _repository = _context.CreateRepository();
 
-            // Act            
-            var fruitToDelete = await _repository.FindFruitByIdAsync(fruit.Id);
-
-            Assert.That(fruitToDelete, Is.Not.Null);
-
-            await _repository.DeleteFruitAsync(fruitToDelete);
-            var fruitInDb = await _repository.FindFruitByIdAsync(fruit.Id);
+            // Act
+            await _repository.DeleteFruitAsync(fruit.Id);
+            var fruitExistsOnDb = await _repository.FindFruitByIdAsync(fruit.Id);
 
             // Assert            
-            Assert.That(fruitInDb, Is.Null);
+            Assert.That(fruitExistsOnDb, Is.Null);
         }
     }
 }

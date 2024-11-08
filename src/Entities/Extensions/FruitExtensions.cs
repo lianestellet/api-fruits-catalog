@@ -5,14 +5,14 @@ namespace Entities.Extensions
 {
     public static class FruitExtensions
     {
-        public static FruitDTO ToFruitDTO(this Fruit fruit)
+        public static FruitDTO ToFruitDTO(this Fruit fruit, long? fruitId = null)
         {
             return new FruitDTO
             {
+                Id = fruitId == null ? fruit.Id : fruitId.Value,
                 Name = fruit.Name,
                 Description = fruit.Description,
                 FruitTypeId = fruit.FruitTypeId,
-                Id = fruit.Id,
                 FruitType = fruit.FruitType?.ToFruitTypeDTO()
             };
         }
@@ -41,6 +41,12 @@ namespace Entities.Extensions
         public static IEnumerable<FruitDTO> ToFruitDTOList(this IEnumerable<Fruit> fruits) 
         {
             return fruits.Select(fruit => fruit.ToFruitDTO()).ToList();
-        }       
+        }
+        public static void ApplyAttributesFrom(this Fruit fruit, Fruit updatedFruit)
+        {
+            fruit.Name = updatedFruit.Name;
+            fruit.Description = updatedFruit.Description;
+            fruit.FruitTypeId = updatedFruit.FruitTypeId;
+        }
     }
 }

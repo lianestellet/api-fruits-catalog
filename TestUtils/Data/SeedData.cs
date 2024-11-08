@@ -1,7 +1,8 @@
 ﻿using Entities.Domain;
-using TestUtils.Fixtures;
+using System.Collections.Generic;
+using TestUtils.Core.Fixtures;
 
-namespace TestUtils.Data
+namespace TestUtils.Core.Data
 {
     public class SeedData() : ISeedData
     {
@@ -48,6 +49,16 @@ namespace TestUtils.Data
                     TropicalFixture.Type
                 ];
             FruitTypes.AddRange(allTypes);
+            return this;
+        }
+
+        public SeedData SeedAllFruits()
+        {
+            Fruits.AddRange(BerryFixture.AllBerries);
+            Fruits.AddRange(CitrusFixture.AllCitrus);
+            Fruits.AddRange(PomeFixture.AllPomes);
+            Fruits.AddRange(StoneFixture.AllStoneFruits);
+            Fruits.AddRange(TropicalFixture.AllTropicalFruits);
             return this;
         }
 

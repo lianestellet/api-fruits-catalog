@@ -1,5 +1,6 @@
 ﻿using DataAccess.Context;
 using Entities.Domain;
+using Entities.Exceptions;
 using Entities.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,7 @@ namespace DataAccess.Repositories
         {
             return await _context.Fruits
                 .Include(f => f.FruitType)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(f => f.Id == fruitId);
         }
 
@@ -30,15 +32,25 @@ namespace DataAccess.Repositories
             return fruit;
         }
 
-        public async Task<Fruit> UpdateFruitAsync(Fruit fruit)
+        public async Task<Fruit> UpdateFruitAsync(Fruit updateFruitData)
         {
-            _context.Fruits.Update(fruit);
+            var fruitToUpdate = await _context.Fruits.FindAsync(updateFruitData.Id) ?? 
+                throw new NotFoundException(ExceptionMessages.FruitNotFoundById(updateFruitData.Id));
+
+            fruitToUpdate.Name = updateFruitData.Name;
+            fruitToUpdate.Description = updateFruitData.Description;
+            fruitToUpdate.FruitTypeId = updateFruitData.FruitTypeId;
+
+            _context.Fruits.Update(fruitToUpdate);
             await _context.SaveChangesAsync();
-            return fruit;
+            return updateFruitData;
         }
 
-        public async Task DeleteFruitAsync(Fruit fruit)
+        public async Task DeleteFruitAsync(long fruitId)
         {
+            var fruit = await _context.Fruits.FindAsync(fruitId) ??
+                throw new NotFoundException(ExceptionMessages.FruitNotFoundById(fruitId));
+
             _context.Fruits.Remove(fruit);
             await _context.SaveChangesAsync();
         }

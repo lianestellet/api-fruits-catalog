@@ -1,6 +1,6 @@
 ﻿using Entities.Domain;
 
-namespace TestUtils.Data
+namespace TestUtils.Core.Data
 {
     public interface ISeedData
     {

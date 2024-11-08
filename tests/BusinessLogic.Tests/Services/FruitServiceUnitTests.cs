@@ -8,13 +8,11 @@ using Entities.Interfaces;
 using Entities.Validation;
 using FluentValidation;
 using Moq;
-using NUnit.Framework.Constraints;
-using TestUtils.Extensions;
-using TestUtils.Fixtures;
+using TestUtils.Core.Fixtures;
 
 namespace BusinessLogic.UnitTests.Services
 {
-    public class FruitServiceTests
+    public class FruitServiceUnitTests
     {
         private Mock<IFruitRepository> _mockRepository;
         private FruitDTOValidator _validator;
@@ -31,21 +29,21 @@ namespace BusinessLogic.UnitTests.Services
         }
 
         [Test]
-        public async Task FindAllFruits_ReturnsAllFruits_WhenFruitsExist()
+        public async Task FindAllFruitsAsync_ShouldReturnAllFruits_WhenFruitsExist()
         {
             // Arrange
             List<Fruit> fruits = [CitrusFixture.Lemon, StoneFixture.Peach, TropicalFixture.Coconut];
             _mockRepository.StubFindAllFruitsAsync(fruits);
 
             // Act
-            var result = await _service.FindAllFruits();
+            var result = await _service.FindAllFruitsAsync();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Count, Is.EqualTo(fruits.Count));
         }
 
         [Test]
-        public async Task FindFruitByIdAsync_ShouldReturnFruit()
+        public async Task FindFruitByIdAsync_ShouldReturnFruit_WhenExists()
         {
             // Arrange
             var fruit = CitrusFixture.Lemon;
@@ -64,7 +62,7 @@ namespace BusinessLogic.UnitTests.Services
         }
 
         [Test]
-        public async Task FindFruitByIdAsync_ThrowsNotFound_WhenFruitIdNotExist()
+        public async Task FindFruitByIdAsync_ThrowsNotFoundException_WhenFruitNotExist()
         {
             // Arrange
             var nonExistentFruitId = -1;
@@ -82,7 +80,7 @@ namespace BusinessLogic.UnitTests.Services
 
 
         [Test]
-        public async Task SaveFruitAsync_ReturnsFruitDTO()
+        public async Task SaveFruitAsync_ShouldReturnFruitDTO_WhenValidCreateFruitDTO()
         {
             // Arrange
             var fruitDto = CitrusFixture.Lemon.ToCreateFruitDTO();
@@ -105,7 +103,7 @@ namespace BusinessLogic.UnitTests.Services
         }
 
         [Test]
-        public async Task SaveFruitAsync_ThrowsValidationException_WhenFruitIsNotValid()
+        public async Task SaveFruitAsync_ThrowsValidationException_WhenNotValidData()
         {
             var invalidFruitDto = new CreateFruitDTO
             {
@@ -154,7 +152,7 @@ namespace BusinessLogic.UnitTests.Services
         }
 
         [Test]
-        public async Task UpdateFruitAsync_ThrowsValidationException_WhenFruitDtoIsNotValid()
+        public async Task UpdateFruitAsync_ThrowsValidationException_WhenNotValidData()
         {
             // Arrange
             var invalidFruitDto = new FruitDTO() { Name = "", Description = "" };            
@@ -175,14 +173,15 @@ namespace BusinessLogic.UnitTests.Services
         }
 
         [Test]
-        public async Task UpdateFruitAsync_ThrowsNotFoundException_WhenFruitDoesNotExist()
+        public async Task UpdateFruitAsync_ThrowsNotFoundException_WhenFruitNotExist()
         {
             // Arrange
             long nonExistentFruitId = -1;
-            var fruitDto = PomeFixture.Pear.WithId(nonExistentFruitId).ToFruitDTO();
-
             var expectedExceptionMessage = ExceptionMessages.FruitNotFoundById(nonExistentFruitId);
-            _mockRepository.StubFindFruitByIdAsyncAs(null);
+            var fruitDto = PomeFixture.Pear.ToFruitDTO(nonExistentFruitId);            
+
+            _mockRepository.StubFindFruitTypeByIdAsyncAs(PomeFixture.Type);
+            _mockRepository.StubUpdateFruitAsyncFruitNotFoundException(fruitDto);
 
             // Act & Assert
             var ex = await Task.Run(
@@ -195,7 +194,7 @@ namespace BusinessLogic.UnitTests.Services
 
 
         [Test]
-        public async Task UpdateFruitAsync_ThrowsNotFoundException_WhenFruitTypeDoesNotExist()
+        public async Task UpdateFruitAsync_ThrowsNotFoundException_WhenFruitTypeNotExist()
         {
             // Arrange
             var invalidFruitTypeId = -1;
@@ -225,10 +224,10 @@ namespace BusinessLogic.UnitTests.Services
         }
 
         [Test]
-        public async Task UpdateFruitAsync_ShouldUpdate_WhenFruitDtoIsValid()
+        public async Task UpdateFruitAsync_ShouldUpdateFruit_WhenValidFruitDTO()
         {
             // Arrange
-            var updatedFruit = TropicalFixture.Papaya.WithId(1);
+            var updatedFruit = TropicalFixture.Papaya;
             var updateFruitDto = updatedFruit.ToFruitDTO();
 
             _mockRepository.StubFindFruitByIdAsyncAs(updatedFruit);
@@ -248,7 +247,7 @@ namespace BusinessLogic.UnitTests.Services
         }
 
         [Test]
-        public async Task DeleteFruitAsync_ThrowsNotFoundException_WhenFruitNotExist()
+        public async Task DeleteFruitAsync_ThrowsNotFoundException_WhenFruitDoesNotExist()
         {
             // Arrange
             var inexistentFruitId = -1;
@@ -259,7 +258,7 @@ namespace BusinessLogic.UnitTests.Services
 
             try
             {
-                await _service.DeleteFruit(inexistentFruitId);
+                await _service.DeleteFruitAsync(inexistentFruitId);
                 Assert.Fail("Expected NotFoundException but non was thrown");
             }
             catch (NotFoundException ex)
@@ -269,7 +268,7 @@ namespace BusinessLogic.UnitTests.Services
         }
 
         [Test]
-        public async Task DeleteFruitAsync_ShouldDelete_WhenFruitExists()
+        public async Task DeleteFruitAsync_ShouldDeleteFruit_WhenExists()
         {
             // Arrange
             var existingFruitId = 1;
@@ -277,10 +276,10 @@ namespace BusinessLogic.UnitTests.Services
 
             _mockRepository.StubFindFruitByIdAsyncAs(null);
 
-            _mockRepository.Setup(r => r.FindFruitByIdAsync(existingFruitId)).ReturnsAsync(existingFruit); 
-            _mockRepository.Setup(r => r.DeleteFruitAsync(existingFruit)).Returns(Task.CompletedTask);
+            _mockRepository.Setup(r => r.FindFruitByIdAsync(existingFruitId)).ReturnsAsync(existingFruit);
+            _mockRepository.Setup(r => r.DeleteFruitAsync(existingFruitId)).Returns(Task.CompletedTask);
 
-            await _service.DeleteFruit(existingFruitId);            
+            await _service.DeleteFruitAsync(existingFruitId);
         }
     }
 }

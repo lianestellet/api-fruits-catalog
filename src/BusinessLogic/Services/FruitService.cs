@@ -4,7 +4,6 @@ using Entities.Exceptions;
 using Entities.Extensions;
 using Entities.Interfaces;
 using FluentValidation;
-using TestUtils.Extensions;
 
 namespace BusinessLogic.Services
 {
@@ -14,7 +13,7 @@ namespace BusinessLogic.Services
         private readonly IValidator<FruitDTO> _validator = validator;
         private readonly IValidator<CreateFruitDTO> _createValidator = createValidator;
 
-        public async Task<IEnumerable<FruitDTO>> FindAllFruits()
+        public async Task<IEnumerable<FruitDTO>> FindAllFruitsAsync()
         {
             var fruits = await _fruitRepository.FindAllFruitsAsync();
             return fruits.Select(fruit => new FruitDTO(fruit)).ToList();
@@ -51,17 +50,15 @@ namespace BusinessLogic.Services
                 throw new ValidationException(validationResult.Errors);
             }
 
-            await FindFruitByIdAsync(fruitDto.Id);
             await FindFruitTypeById(fruitDto.FruitTypeId);
-
             var result = await _fruitRepository.UpdateFruitAsync(fruitDto.ToFruit());
             return result.ToFruitDTO();
         }
 
-        public async Task DeleteFruit(long id)
+        public async Task DeleteFruitAsync(long id)
         {
-            var fruit = await FindFruitByIdAsync(id);
-            await _fruitRepository.DeleteFruitAsync(fruit.ToFruit());
+            await FindFruitByIdAsync(id);
+            await _fruitRepository.DeleteFruitAsync(id);
         }
 
         private async Task<FruitType?> FindFruitTypeById(long fruitId)
