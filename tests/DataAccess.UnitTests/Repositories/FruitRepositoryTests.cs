@@ -186,5 +186,11 @@ namespace DataAccess.UnitTests.Repositories
             // Assert            
             Assert.That(fruitExistsOnDb, Is.Null);
         }
+
+        [Test]
+        public async Task FAIL()
+        {
+            Assert.That(1, Is.EqualTo(2));
+        }
     }
 }
