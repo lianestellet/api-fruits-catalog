@@ -186,11 +186,5 @@ namespace DataAccess.UnitTests.Repositories
             // Assert            
             Assert.That(fruitExistsOnDb, Is.Null);
         }
-
-        [Test]
-        public async Task GITHUB_ACTIONS_CI_FAIL()
-        {
-            Assert.That(1, Is.EqualTo(2));
-        }
     }
 }
