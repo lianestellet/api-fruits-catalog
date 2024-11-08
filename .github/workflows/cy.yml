@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build
-          path: |            
+          path: |
             src/**/bin/Debug/net8.0
             tests/**/bin/Debug/net8.0
 
@@ -65,13 +65,15 @@ jobs:
     needs: build
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
       - name: Set up .NET
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: "8.0.x"
+
+      - name: Restore build output
+        uses: actions/download-artifact@v4
+        with:
+          name: build
 
       - name: Run BusinessLogic integration tests
         run: dotnet test --no-build --verbosity normal ./tests/BusinessLogic.IntegrationTests/BusinessLogic.IntegrationTests.csproj
