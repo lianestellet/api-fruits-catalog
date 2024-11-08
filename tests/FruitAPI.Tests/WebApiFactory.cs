@@ -1,11 +1,12 @@
-﻿using DataAccess.Context;
+﻿using API;
+using DataAccess.Context;
 using Entities.Domain;
-using FruitCatalog.API;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TestUtils.Fixtures;
 
 namespace Tests
 {
@@ -17,14 +18,14 @@ namespace Tests
             {
                 // Remove the app's FruitContext registration.
                 var descriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(DbContextOptions<FruitContext>));
+                    d => d.ServiceType == typeof(DbContextOptions<FruitDbContext>));
                 if (descriptor != null)
                 {
                     services.Remove(descriptor);
                 }
 
                 // Add a database context (FruitContext) using an in-memory database for testing.
-                services.AddDbContext<FruitContext>(options =>
+                services.AddDbContext<FruitDbContext>(options =>
                 {
                     options.UseInMemoryDatabase("InMemoryDbForTesting");
                 });
@@ -34,7 +35,7 @@ namespace Tests
 
                 // Create a scope to obtain a reference to the database contexts (FruitContext).
                 using (var scope = sp.CreateScope())
-                using (var appContext = scope.ServiceProvider.GetRequiredService<FruitContext>())
+                using (var appContext = scope.ServiceProvider.GetRequiredService<FruitDbContext>())
                 {
                     // Ensure the database is created
                     appContext.Database.EnsureCreated();
@@ -42,7 +43,7 @@ namespace Tests
 
                     {
                         var scopedServices = scope.ServiceProvider;
-                        var db = scopedServices.GetRequiredService<FruitContext>();
+                        var db = scopedServices.GetRequiredService<FruitDbContext>();
                         var logger = scopedServices.GetRequiredService<ILogger<WebApiFactory>>();
 
                         try
@@ -52,18 +53,18 @@ namespace Tests
                         }
                         catch (Exception ex)
                         {
-                            logger.LogError(ex, "An error occurred seeding the database with test messages. Error: {ex.Message}");
+                            logger.LogError(ex, $"An error occurred seeding the database with test messages. Error: {ex.Message}");
                         }
                     }
                 }
             });
         }
 
-        private void SeedData(FruitContext context)
+        private void SeedData(FruitDbContext context)
         {
             // Add seed data to the context
-            context.FruitTypes.Add(new FruitType { Name = "Citric", Description = "Like oranges" });
-            context.Fruits.Add(new Fruit { Name = "Papaya", Description = "Tropical", FruitTypeId = 1 });
+            context.FruitTypes.Add(TropicalFruitFixture.Pineapple.FruitType!);
+            context.Fruits.AddRange(TropicalFruitFixture.AllTropicalFruits);
             context.SaveChanges();
         }
     }

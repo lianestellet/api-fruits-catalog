@@ -1,6 +1,6 @@
 ﻿using Entities.Domain;
 
-namespace TestUtils.Fixtures
+namespace TestUtils.Core.Fixtures
 {
     public static class StoneFixture
     {
@@ -14,6 +14,7 @@ namespace TestUtils.Fixtures
         public static readonly Fruit Peach = 
             new("Peach")
             { 
+                Id = 31,
                 Description = "Soft and fuzzy", 
                 FruitTypeId = Type.Id 
             };
@@ -21,6 +22,7 @@ namespace TestUtils.Fixtures
         public static readonly Fruit Cherry = 
             new("Cherry")
             { 
+                Id = 32,
                 Description = "Small and juicy", 
                 FruitTypeId = Type.Id 
             };
