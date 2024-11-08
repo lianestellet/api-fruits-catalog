@@ -18,6 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\..\src\Entities\Entities.csproj" />
+    <ProjectReference Include="..\TestUtils.Core\TestUtils.Core.csproj" />
+    <ProjectReference Include="..\TestUtils.DataAccess\TestUtils.DataAccess.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="NUnit.Framework" />
   </ItemGroup>
 

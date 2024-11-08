@@ -12,18 +12,17 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\BusinessLogic\BusinessLogic.csproj" />
-    <ProjectReference Include="..\src\DataAccess\DataAccess.csproj" />
-    <ProjectReference Include="..\src\Entities\Entities.csproj" />
-    <ProjectReference Include="..\tests\DataAccess.Tests\DataAccess.UnitTests.csproj" />
-    <ProjectReference Include="..\TestUtils.DataAccess\TestUtils.DataAccess.csproj" />
-    <ProjectReference Include="..\TestUtils\TestUtils.Core.csproj" />
+    <ProjectReference Include="..\..\src\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\..\src\DataAccess\DataAccess.csproj" />
+    <ProjectReference Include="..\..\src\Entities\Entities.csproj" />
+    <ProjectReference Include="..\TestUtils.Core\TestUtils.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
