@@ -28,16 +28,6 @@ jobs:
       - name: Build
         run: dotnet build --no-restore ./FruitsCatalogAPI.sln
 
-      - name: Save build output
-        uses: actions/upload-artifact@v4
-        with:
-          name: build
-          path: |
-            src/API/bin
-            src/BusinessLogic/bin
-            src/DataAccess/bin
-            src/Entities/bin
-
   unit_tests:
     runs-on: ubuntu-latest
     needs: build
@@ -50,11 +40,6 @@ jobs:
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: "8.0.x"
-
-      - name: Restore build output
-        uses: actions/download-artifact@v4
-        with:
-          name: build
 
       - name: Run DataAccess unit tests
         run: dotnet test --no-build --verbosity normal ./tests/DataAccess.UnitTests/DataAccess.UnitTests.csproj
