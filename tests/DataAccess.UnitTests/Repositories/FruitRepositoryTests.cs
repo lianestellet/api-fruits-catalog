@@ -79,7 +79,7 @@ namespace DataAccess.UnitTests.Repositories
             var seedData = new SeedData()
                 .SeedFruitType(expectedFruitType)
                 .SeedFruit(expectedFruit);
-            
+
             var dbContext = await SetupInMemoryDb.SeededAsync(seedData);
             var _repository = dbContext.CreateRepository();
 
@@ -90,7 +90,7 @@ namespace DataAccess.UnitTests.Repositories
             Assert.That(actualFruit, Is.Not.Null);
             Assert.Multiple(() =>
             {
-                Assert.That(actualFruit.Name, Is.EqualTo(expectedFruit.Name));                
+                Assert.That(actualFruit.Name, Is.EqualTo(expectedFruit.Name));
                 Assert.That(actualFruit.Description, Is.EqualTo(expectedFruit.Description));
                 Assert.That(actualFruit.FruitType!.Name, Is.EqualTo(expectedFruitType.Name));
             });
@@ -160,13 +160,13 @@ namespace DataAccess.UnitTests.Repositories
         public async Task DeleteFruitAsync_ShouldRemoveFruit_WhenExists()
         {
             // Arrange
-            FruitType fruitType = new ("Tropical") 
-            { 
-                Id = 1, 
-                Description = "Known for their exotic flavors and vibrant colors" 
+            FruitType fruitType = new("Tropical")
+            {
+                Id = 1,
+                Description = "Known for their exotic flavors and vibrant colors"
             };
 
-            Fruit fruit = new ("Pineapple")
+            Fruit fruit = new("Pineapple")
             {
                 Description = "Tropical and tangy",
                 FruitTypeId = fruitType.Id
