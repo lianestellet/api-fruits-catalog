@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "feature/**"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore ./FruitsCatalogAPI.sln
+
+      - name: Build
+        run: dotnet build --no-restore ./FruitCatalogAPI.sln
+
+      - name: Run data layer unit tests
+        run: dotnet test --no-build --verbosity normal ./tests/DataAccess.UnitTests/DataAccess.UnitTests.csproj
+
+      - name: Run business layer unit tests
+        run: dotnet test --no-build --verbosity normal ./tests/BusinessLogic.UnitTests/BusinessLogic.UnitTests.csproj
+
+      - name: Run business layer integration tests
+        run: dotnet test --no-build --verbosity normal ./tests/BusinessLogic.IntegrationTests/BusinessLogic.IntegrationTests.csproj
