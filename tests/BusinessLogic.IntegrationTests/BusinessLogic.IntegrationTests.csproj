@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -20,8 +20,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\BusinessLogic\BusinessLogic.csproj" />
     <ProjectReference Include="..\..\src\Entities\Entities.csproj" />
-    <ProjectReference Include="..\TestUtils.Core\TestUtils.Core.csproj" />
-    <ProjectReference Include="..\TestUtils.DataAccess\TestUtils.DataAccess.csproj" />
+    <ProjectReference Include="..\..\src\Utils.Data\Utils.Data.csproj" />
+    <ProjectReference Include="..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
   <ItemGroup>

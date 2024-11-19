@@ -1,7 +1,6 @@
 ﻿using DataAccess.Context;
 using Entities.Domain;
 using Entities.Exceptions;
-using Entities.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories
@@ -17,12 +16,13 @@ namespace DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Fruit?> FindFruitByIdAsync(long fruitId)
+        public async Task<Fruit> FindFruitByIdAsync(long fruitId)
         {
-            return await _context.Fruits
+            var fruit = await _context.Fruits
                 .Include(f => f.FruitType)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(f => f.Id == fruitId);
+
+            return fruit ?? throw new FruitNotFoundException(fruitId);
         }
 
         public async Task<Fruit> SaveFruitAsync(Fruit fruit)
@@ -32,32 +32,26 @@ namespace DataAccess.Repositories
             return fruit;
         }
 
-        public async Task<Fruit> UpdateFruitAsync(Fruit updateFruitData)
+        public async Task<Fruit> UpdateFruitAsync(Fruit fruit)
         {
-            var fruitToUpdate = await _context.Fruits.FindAsync(updateFruitData.Id) ?? 
-                throw new NotFoundException(ExceptionMessages.FruitNotFoundById(updateFruitData.Id));
-
-            fruitToUpdate.Name = updateFruitData.Name;
-            fruitToUpdate.Description = updateFruitData.Description;
-            fruitToUpdate.FruitTypeId = updateFruitData.FruitTypeId;
-
-            _context.Fruits.Update(fruitToUpdate);
+            _context.Fruits.Update(fruit);            
             await _context.SaveChangesAsync();
-            return updateFruitData;
+            return fruit;
         }
 
         public async Task DeleteFruitAsync(long fruitId)
         {
             var fruit = await _context.Fruits.FindAsync(fruitId) ??
-                throw new NotFoundException(ExceptionMessages.FruitNotFoundById(fruitId));
+                throw new FruitNotFoundException(fruitId);
 
             _context.Fruits.Remove(fruit);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<FruitType?> FruitTypeByIdAsync(long fruitTypeId)
+        public async Task<FruitType> FindFruitTypeByIdAsync(long fruitTypeId)
         {
-            return await _context.FruitTypes.FirstOrDefaultAsync(ft => ft.Id == fruitTypeId);
+            var fruitType = await _context.FruitTypes.FirstOrDefaultAsync(ft => ft.Id == fruitTypeId);
+            return fruitType ?? throw new FruitTypeNotFoundException(fruitTypeId);
         }
     }
 }

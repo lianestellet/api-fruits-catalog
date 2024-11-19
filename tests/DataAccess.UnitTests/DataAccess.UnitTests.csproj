@@ -20,8 +20,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\DataAccess\DataAccess.csproj" />
     <ProjectReference Include="..\..\src\Entities\Entities.csproj" />
-    <ProjectReference Include="..\TestUtils.Core\TestUtils.Core.csproj" />
-    <ProjectReference Include="..\TestUtils.DataAccess\TestUtils.DataAccess.csproj" />
+    <ProjectReference Include="..\..\src\Utils.Data\Utils.Data.csproj" />
+    <ProjectReference Include="..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,7 +1,8 @@
-﻿using Entities.Domain;
-using Entities.DTOs;
+﻿using BusinessLogic.Models.DTOs;
+using BusinessLogic.Models.Request;
+using DataAccess.Repositories;
+using Entities.Domain;
 using Entities.Exceptions;
-using Entities.Interfaces;
 using Moq;
 
 namespace BusinessLogic.UnitTests.Extensions
@@ -20,7 +21,7 @@ namespace BusinessLogic.UnitTests.Extensions
 
         public static void StubFindFruitTypeByIdAsyncAs(this Mock<IFruitRepository> mockRepository, FruitType? fruitType) 
         { 
-            mockRepository.Setup(r => r.FruitTypeByIdAsync(It.IsAny<long>())).ReturnsAsync(fruitType); 
+            mockRepository.Setup(r => r.FindFruitTypeByIdAsync(It.IsAny<long>())).ReturnsAsync(fruitType); 
         }
 
         public static void StubSaveFruitAsyncAs(this Mock<IFruitRepository> mockRepository, Fruit fruit)
@@ -33,7 +34,7 @@ namespace BusinessLogic.UnitTests.Extensions
             mockRepository.Setup(r => r.UpdateFruitAsync(It.IsAny<Fruit>())).ReturnsAsync(fruit);
         }
 
-        public static void StubUpdateFruitAsyncFruitNotFoundException(this Mock<IFruitRepository> mockRepository, FruitDTO fruit)
+        public static void StubUpdateFruitAsyncFruitNotFoundException(this Mock<IFruitRepository> mockRepository, UpdateFruitRequest fruit)
         {
             var exception = new NotFoundException(ExceptionMessages.FruitNotFoundById(fruit.Id));
             mockRepository.Setup(r => r.UpdateFruitAsync(It.IsAny<Fruit>())).ThrowsAsync(exception);

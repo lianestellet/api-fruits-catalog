@@ -1,25 +1,24 @@
-using BusinessLogic.IntegrationTests.Extensions;
+using API.Models.Request;
+using AutoMapper;
+using BusinessLogic.Mappings;
+using BusinessLogic.Models.DTOs;
+using BusinessLogic.Models.Request;
 using BusinessLogic.Services;
-using Entities.Domain;
-using Entities.DTOs;
-using Entities.Extensions;
-using Entities.Validation;
-using TestUtils.Core.Data;
-using TestUtils.Core.Fixtures;
-using TestUtils.DataAccess.Context;
+using TestUtils.Context;
+using Utils.Data;
+using Utils.Fixtures;
 
 namespace BusinessLogic.IntegrationTests.Services
 {
     public class FruitServiceIntegrationTests
-    {
-        private FruitDTOValidator _validator;
-        private CreateFruitDTOValidator _createValidator;
+    {        
+        private IMapper _mapper;
 
         [SetUp]
         public void Setup()
         {
-            _validator = new FruitDTOValidator();
-            _createValidator = new CreateFruitDTOValidator();
+            var mappingConfig = new MapperConfiguration(mc => { mc.AddProfile<BusinessLogicMappingProfile>(); });
+            _mapper = mappingConfig.CreateMapper();
         }
 
         [Test]
@@ -31,10 +30,11 @@ namespace BusinessLogic.IntegrationTests.Services
             var expectedCount = seedData.Fruits.Count;
 
             SetupInMemoryDb inMemoryDb = await SetupInMemoryDb.SeededAsync(seedData);
-            var _service = inMemoryDb.GetFruitService();
+            var repository = inMemoryDb.CreateRepository();
+            var service = new FruitService(repository, _mapper);
 
             // Act
-            var fruits = (await _service.FindAllFruitsAsync()).ToList();
+            var fruits = (await service.FindAllFruitsAsync()).Fruits.ToList();
 
             // Assert
             Assert.That(fruits, Has.Count.EqualTo(expectedCount));
@@ -49,10 +49,11 @@ namespace BusinessLogic.IntegrationTests.Services
             var seedData = new FruitSeedData(expectedFruit);
 
             SetupInMemoryDb inMemoryDb = await SetupInMemoryDb.SeededAsync(seedData);
-            var _service = inMemoryDb.GetFruitService();
+            var repository = inMemoryDb.CreateRepository();
+            var service = new FruitService(repository, _mapper);            
 
             // Act
-            var fruit = await _service.FindFruitByIdAsync(expectedFruit.Id);
+            var fruit = await service.FindFruitByIdAsync(expectedFruit.Id);
 
             // Assert
             Assert.That(fruit, Is.Not.Null);
@@ -68,14 +69,20 @@ namespace BusinessLogic.IntegrationTests.Services
         public async Task SaveFruitAsync_ShouldAddFruit_WhenValidCreateFruitDTO()
         {
             // Arrange
-            var expectedFruit = PomeFixture.Pear.ToCreateFruitDTO();
+            var expectedFruit = new SaveFruitRequest
+            {
+                Name = PomeFixture.Apple.Name,
+                Description = PomeFixture.Apple.Description,
+                FruitTypeId = PomeFixture.Apple.FruitTypeId
+            };
 
             SetupInMemoryDb inMemoryDb = await SetupInMemoryDb.SeededAsync(new FruitSeedData());
-            var _service = inMemoryDb.GetFruitService();
+            var repository = inMemoryDb.CreateRepository();
+            var service = new FruitService(repository, _mapper);
 
             // Act
-            var createdFruitId = (await _service.SaveFruitAsync(expectedFruit)).Id;
-            var createdFruit = await _service.FindFruitByIdAsync(createdFruitId);
+            var createdFruitId = (await service.SaveFruitAsync(expectedFruit)).Id;
+            var createdFruit = await service.FindFruitByIdAsync(createdFruitId);
 
             // Assert
             Assert.That(createdFruit, Is.Not.Null);
@@ -91,29 +98,33 @@ namespace BusinessLogic.IntegrationTests.Services
         public async Task UpdateFruit_ShouldUpdateFruit_WhenValidFruitDTO()
         {
             // Arrange
-            var previousFruitData = PomeFixture.Pear;
-            var seedData = new FruitSeedData(previousFruitData);
+            var formerFruit = PomeFixture.Pear;
+            var seedData = new FruitSeedData(formerFruit);
 
             SetupInMemoryDb inMemoryDb = await SetupInMemoryDb.SeededAsync(seedData);
-            var _service = inMemoryDb.GetFruitService();
+            var repository = inMemoryDb.CreateRepository();
+            var service = new FruitService(repository, _mapper);
 
-            var expectedFruitData = BerryFixture.Blueberry;
-            previousFruitData.Name = expectedFruitData.Name;
-            previousFruitData.Description = expectedFruitData.Description;
-            previousFruitData.FruitTypeId = expectedFruitData.FruitTypeId;
-                
-            var incomingFruitData = previousFruitData.ToFruitDTO();
+            var expectedFruit = BerryFixture.Blueberry;
+
+            var incomingFruitData = new UpdateFruitRequest
+            {
+                Id = formerFruit.Id,
+                Name = expectedFruit.Name,
+                Description = expectedFruit.Description,
+                FruitTypeId = expectedFruit.FruitTypeId
+            };
 
             // Act
-            var updatedFruit = await _service.UpdateFruitAsync(incomingFruitData);
+            var updatedFruit = await service.UpdateFruitAsync(incomingFruitData);
 
             // Assert
             Assert.That(updatedFruit, Is.Not.Null);
             Assert.Multiple(() =>
             {
-                Assert.That(updatedFruit.Name, Is.EqualTo(incomingFruitData.Name));
-                Assert.That(updatedFruit.Description, Is.EqualTo(incomingFruitData.Description));
-                Assert.That(updatedFruit.FruitTypeId, Is.EqualTo(incomingFruitData.FruitTypeId));
+                Assert.That(updatedFruit.Name, Is.EqualTo(expectedFruit.Name));
+                Assert.That(updatedFruit.Description, Is.EqualTo(expectedFruit.Description));
+                Assert.That(updatedFruit.FruitTypeId, Is.EqualTo(expectedFruit.FruitTypeId));
             });
         }
 
@@ -125,16 +136,17 @@ namespace BusinessLogic.IntegrationTests.Services
             var seedData = new FruitSeedData(fruitToDelete);
 
             SetupInMemoryDb inMemoryDb = await SetupInMemoryDb.SeededAsync(seedData);
-            var _service = inMemoryDb.GetFruitService();
+            var repository = inMemoryDb.CreateRepository();
+            var service = new FruitService(repository, _mapper);
 
             // Act & Assert
-            var fruitsBeforeDelete = (await _service.FindAllFruitsAsync()).ToList();
+            var fruitsBeforeDelete = (await service.FindAllFruitsAsync()).Fruits.ToList();
             Assert.That(fruitsBeforeDelete, Has.Count.EqualTo(6));
             Assert.That(fruitsBeforeDelete, Has.Exactly(1).Matches<FruitDTO>(f => f.Name == fruitToDelete.Name));
 
-            await _service.DeleteFruitAsync(fruitToDelete.Id);
+            await service.DeleteFruitAsync(fruitToDelete.Id);
 
-            var fruitsAfterDelete = (await _service.FindAllFruitsAsync()).ToList();
+            var fruitsAfterDelete = (await service.FindAllFruitsAsync()).Fruits.ToList();
 
             Assert.Multiple(() =>
             {

@@ -1,70 +1,75 @@
-﻿using Entities.Domain;
-using Entities.DTOs;
+﻿using API.Models.Request;
+using AutoMapper;
+using BusinessLogic.Models.DTOs;
+using BusinessLogic.Models.Request;
+using BusinessLogic.Models.Response;
+using DataAccess.Repositories;
+using Entities.Domain;
 using Entities.Exceptions;
-using Entities.Extensions;
-using Entities.Interfaces;
-using FluentValidation;
 
 namespace BusinessLogic.Services
 {
-    public class FruitService(IFruitRepository fruitRepository, IValidator<FruitDTO> validator, IValidator<CreateFruitDTO> createValidator) : IFruitService
+    public class FruitService(IFruitRepository fruitRepository, IMapper mapper) : IFruitService
     {
         private readonly IFruitRepository _fruitRepository = fruitRepository;
-        private readonly IValidator<FruitDTO> _validator = validator;
-        private readonly IValidator<CreateFruitDTO> _createValidator = createValidator;
+        private readonly IMapper _mapper = mapper;
 
-        public async Task<IEnumerable<FruitDTO>> FindAllFruitsAsync()
+        public async Task<FruitListResponse> FindAllFruitsAsync()
         {
             var fruits = await _fruitRepository.FindAllFruitsAsync();
-            return fruits.Select(fruit => new FruitDTO(fruit)).ToList();
+            var fruitList = _mapper.Map<IEnumerable<FruitDTO>>(fruits).ToList();
+            return new FruitListResponse(fruitList);
         }
 
-        public async Task<FruitDTO> FindFruitByIdAsync(long id)
+        public async Task<FruitResponse> FindFruitByIdAsync(long id)
         {
-            var fruit = await _fruitRepository.FindFruitByIdAsync(id);
-
-            return fruit == null 
-                ? throw new NotFoundException(ExceptionMessages.FruitNotFoundById(id)) 
-                : new FruitDTO(fruit);
+            var fruit = await FindFruitByIdOrThrowException(id);
+            var fruitDto = _mapper.Map<FruitDTO>(fruit);
+            return new FruitResponse(fruitDto, "Fruit retrieved successfully");
         }
 
-        public async Task<FruitDTO> SaveFruitAsync(CreateFruitDTO fruit)
+        public async Task<FruitResponse> SaveFruitAsync(SaveFruitRequest createFruitRequest)
         {
-            var validationResult = _createValidator.Validate(fruit);
-            if(!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
+            await ValidateFruitTypeAsync(createFruitRequest.FruitTypeId);                        
 
-            await FindFruitTypeById(fruit.FruitTypeId);
+            var createdFruit = await _fruitRepository.SaveFruitAsync(_mapper.Map<Fruit>(createFruitRequest));
 
-            var savedFruit = await _fruitRepository.SaveFruitAsync(fruit.ToFruit());
-            return savedFruit.ToFruitDTO();
+            return new FruitResponse(_mapper.Map<FruitDTO>(createdFruit), "Fruit created successfully");
         }
 
-        public async Task<FruitDTO> UpdateFruitAsync(FruitDTO fruitDto) 
+        public async Task<FruitResponse> UpdateFruitAsync(UpdateFruitRequest updateFruitRequest) 
         {
-            var validationResult = _validator.Validate(fruitDto);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
+            await ValidateFruitTypeAsync(updateFruitRequest.FruitTypeId);
 
-            await FindFruitTypeById(fruitDto.FruitTypeId);
-            var result = await _fruitRepository.UpdateFruitAsync(fruitDto.ToFruit());
-            return result.ToFruitDTO();
+            var fruit = await FindFruitByIdOrThrowException(updateFruitRequest.Id);
+
+            fruit.Id = fruit.Id;
+            fruit.Name = updateFruitRequest.Name;
+            fruit.Description = updateFruitRequest.Description;
+            fruit.FruitTypeId = updateFruitRequest.FruitTypeId;
+            
+            var updatedFruit = await _fruitRepository.UpdateFruitAsync(fruit);
+
+            var fruitDto = _mapper.Map<FruitDTO>(updatedFruit);
+            return new FruitResponse(fruitDto, "Fruit Updated successfully");
+        }
+
+        private async Task<FruitType> ValidateFruitTypeAsync(long fruitTypeId)
+        {
+            var fruitType = await _fruitRepository.FindFruitTypeByIdAsync(fruitTypeId);
+            return fruitType ?? throw new NotFoundException(ExceptionMessages.FruitTypeNotFoundById(fruitTypeId));
+        }
+
+        private async Task<Fruit> FindFruitByIdOrThrowException(long fruitId)
+        {
+            var fruit = await _fruitRepository.FindFruitByIdAsync(fruitId);
+            return fruit ?? throw new NotFoundException(ExceptionMessages.FruitNotFoundById(fruitId));
         }
 
         public async Task DeleteFruitAsync(long id)
         {
             await FindFruitByIdAsync(id);
             await _fruitRepository.DeleteFruitAsync(id);
-        }
-
-        private async Task<FruitType?> FindFruitTypeById(long fruitId)
-        {
-            var fruitType = await _fruitRepository.FruitTypeByIdAsync(fruitId);
-            return fruitType ?? throw new NotFoundException(ExceptionMessages.FruitTypeNotFoundById(fruitId));
         }
     }
 }
