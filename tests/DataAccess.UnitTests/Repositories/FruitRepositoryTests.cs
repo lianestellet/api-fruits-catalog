@@ -92,7 +92,7 @@ namespace DataAccess.UnitTests.Repositories
             Assert.That(actualFruit, Is.Not.Null);
             Assert.Multiple(() =>
             {
-                Assert.That(actualFruit.Name, Is.EqualTo(expectedFruit.Name));
+                Assert.That(actualFruit.Name, Is.EqualTo("FAIL"));
                 Assert.That(actualFruit.Description, Is.EqualTo(expectedFruit.Description));
                 Assert.That(actualFruit.FruitType!.Name, Is.EqualTo(expectedFruitType.Name));
             });
