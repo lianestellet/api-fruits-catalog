@@ -1,12 +1,10 @@
 using DataAccess.Context;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 
 namespace API.Extensions
 {
-	public static class ServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
 	{
 		public static void AddDatabaseConfiguration(this IServiceCollection services)
 		{

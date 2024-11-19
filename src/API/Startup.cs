@@ -1,7 +1,8 @@
-using Entities.Interfaces;
-using BusinessLogic.Services;
-using DataAccess.Repositories;
 using API.Extensions;
+using BusinessLogic.Mappings;
+using BusinessLogic.Services;
+using DataAccess.Context;
+using DataAccess.Repositories;
 
 namespace API
 {
@@ -19,6 +20,8 @@ namespace API
         {
             services.AddControllers();
             services.AddDatabaseConfiguration();
+            services.AddAutoMapper(typeof(BusinessLogicMappingProfile));
+
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
@@ -46,6 +49,15 @@ namespace API
             {
                 endpoints.MapControllers();
             });
+            
+            InitializeDatabase(app);
+        }
+
+        private void InitializeDatabase(IApplicationBuilder app)
+        {
+            using var serviceScope = app.ApplicationServices.CreateScope();
+            var context = serviceScope.ServiceProvider.GetRequiredService<FruitDbContext>();
+            InitializeDbContext.Seed(context);
         }
     }
 }

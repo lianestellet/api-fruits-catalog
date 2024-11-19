@@ -1,8 +1,8 @@
 ﻿using Entities.Domain;
-using Entities.Extensions;
-using TestUtils.Core.Data;
-using TestUtils.Core.Fixtures;
-using TestUtils.DataAccess.Context;
+using Entities.Exceptions;
+using TestUtils.Context;
+using Utils.Data;
+using Utils.Fixtures;
 
 namespace DataAccess.UnitTests.Repositories
 {
@@ -13,10 +13,11 @@ namespace DataAccess.UnitTests.Repositories
         public async Task FindAllFruitsAsync_ShouldReturnEmptyList_WhenNoFruitsExist()
         {
             // Arrange
-            var _repository = SetupInMemoryDb.Empty().CreateRepository();
+            var dbContext = SetupInMemoryDb.Empty();
+            var repository = dbContext.CreateRepository();
 
             // Act
-            var fruits = (await _repository.FindAllFruitsAsync()).ToList();
+            var fruits = (await repository.FindAllFruitsAsync()).ToList();
 
             // Assert
             Assert.That(fruits, Is.Empty);
@@ -57,16 +58,17 @@ namespace DataAccess.UnitTests.Repositories
         }
 
         [Test]
-        public async Task FindByIdAsync_ShouldReturnNull_WhenNotFound()
+        public void FindByIdAsync_ShouldThrowException_WhenNotFound()
         {
             // Arrange
-            var _repository = SetupInMemoryDb.Empty().CreateRepository();
+            var context = SetupInMemoryDb.Empty();
+            var repository = context.CreateRepository();
+            var invalidId = -1;
 
-            // Act 
-            var fruit = await _repository.FindFruitByIdAsync(-1);
 
             // Assert
-            Assert.That(fruit, Is.Null);
+            var exception = Assert.ThrowsAsync<FruitNotFoundException>(async () => await repository.FindFruitByIdAsync(invalidId));
+            Assert.That(exception.CustomMessage, Is.EqualTo(ExceptionMessages.FruitNotFoundById(invalidId)));
         }
 
         [Test]
@@ -137,8 +139,10 @@ namespace DataAccess.UnitTests.Repositories
             var _context = await SetupInMemoryDb.SeededAsync(seedData);
             var _repository = _context.CreateRepository();
 
-            // Act            
-            fruit.ApplyAttributesFrom(expectedFruit);
+            // Act
+            fruit.Name = expectedFruit.Name;
+            fruit.Description = expectedFruit.Description;
+            fruit.FruitTypeId = expectedFruit.FruitTypeId;
             await _repository.UpdateFruitAsync(fruit);
             var updatedFruit = await _repository.FindFruitByIdAsync(fruit.Id);
 
@@ -168,6 +172,7 @@ namespace DataAccess.UnitTests.Repositories
 
             Fruit fruit = new("Pineapple")
             {
+                Id = 2,
                 Description = "Tropical and tangy",
                 FruitTypeId = fruitType.Id
             };
@@ -177,14 +182,13 @@ namespace DataAccess.UnitTests.Repositories
                 .SeedFruit(fruit);
 
             var _context = await SetupInMemoryDb.SeededAsync(seedData);
-            var _repository = _context.CreateRepository();
+            var repository = _context.CreateRepository();
 
             // Act
-            await _repository.DeleteFruitAsync(fruit.Id);
-            var fruitExistsOnDb = await _repository.FindFruitByIdAsync(fruit.Id);
+            await repository.DeleteFruitAsync(fruit.Id);
 
-            // Assert            
-            Assert.That(fruitExistsOnDb, Is.Null);
+            var exception = Assert.ThrowsAsync<FruitNotFoundException>(async () => await repository.FindFruitByIdAsync(fruit.Id));
+            Assert.That(exception.CustomMessage, Is.EqualTo(ExceptionMessages.FruitNotFoundById(fruit.Id)));
         }
     }
 }
